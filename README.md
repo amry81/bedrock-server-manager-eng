@@ -25,10 +25,11 @@ Minecraft 統合版（Bedrock Edition）の自宅サーバーを、Windows / Lin
 
 ### Windows
 
-1. `release/Bedrock Server Manager-Setup-0.1.0.exe` を実行（NSIS インストーラ）
-2. インストール先を選択して進める
-3. 初回起動：利用規約 / Microsoft EULA に同意 → 公式 BDS を自動ダウンロード → Dashboard 着地
-4. **▶ サーバーを起動**
+1. `Bedrock Server Manager-Setup-0.1.0.exe` を実行（NSIS インストーラ）
+2. **SmartScreen 警告**：「Windows によってPCが保護されました」と出ます。本アプリはコード署名なしのため正常です。**「詳細情報」→「実行」**で進めてください。改ざんなしを確認するには [checksums.sha256](release/checksums.sha256) で SHA256 を照合（`Get-FileHash <file> -Algorithm SHA256`）
+3. インストール先を選択して進める
+4. 初回起動：利用規約 / Microsoft EULA に同意 → 公式 BDS を自動ダウンロード → Dashboard 着地
+5. **▶ サーバーを起動**
 
 データ・ワールド・設定は `%LOCALAPPDATA%\BedrockServerManager\` に保存されます。
 
@@ -130,8 +131,47 @@ node_modules/7zip-bin/win/x64/7za.exe x <hash>.7z -o<HOME>/AppData/Local/electro
 
 Electron アプリ全般の制約で、`chrome-sandbox` に setuid root が必要です。tar.gz 展開後に上記の `chmod 4755` で対応するか、`--no-sandbox` で起動してください。
 
+## リリース公開（メンテナ向け）
+
+新バージョンを GitHub Releases に公開する手順：
+
+```bash
+# 1. ビルド成果物を再生成
+npm run build
+npx electron-builder --win --linux tar.gz
+
+# 2. SHA256 を生成
+node -e "const fs=require('fs'),c=require('crypto'),p=require('path');
+const dir='release';
+const files=['Bedrock Server Manager-Setup-0.1.0.exe','Bedrock-Server-Manager-portable-0.1.0.zip','Bedrock Server Manager-0.1.0.tar.gz'];
+const o=files.map(f=>c.createHash('sha256').update(fs.readFileSync(p.join(dir,f))).digest('hex')+'  '+f).join('\n');
+fs.writeFileSync(p.join(dir,'checksums.sha256'),o+'\n');console.log(o);"
+
+# 3. タグ付け & push
+git tag v0.1.0
+git push origin main --tags
+
+# 4. gh CLI で Release 作成（gh が未インストールなら手順5へ）
+gh release create v0.1.0 \
+  "release/Bedrock Server Manager-Setup-0.1.0.exe" \
+  "release/Bedrock-Server-Manager-portable-0.1.0.zip" \
+  "release/Bedrock Server Manager-0.1.0.tar.gz" \
+  "release/checksums.sha256" \
+  --title "v0.1.0" --notes-file docs/release-notes-v0.1.0.md
+```
+
+**ブラウザ手順（gh が無い場合）:**
+1. GitHub の該当リポジトリ → **Releases** → **Draft a new release**
+2. タグ：`v0.1.0`（main を指す）
+3. タイトル：`v0.1.0`、本文は `docs/release-notes-v0.1.0.md` の内容をコピペ
+4. `release/` の4ファイル（installer / portable.zip / tar.gz / checksums.sha256）を添付
+5. **Publish release**
+
+宣伝用のドラフト（X 投稿・YouTube 台本・説明文）は [`docs/promo.md`](docs/promo.md) を参照。
+
 ## ライセンス / 利用上の注意
 
+- アプリ本体は **MIT License**（[LICENSE](LICENSE)）
 - 本アプリは `bedrock_server` および `playit.exe` を**同梱しません**。初回起動時に公式から取得します
 - `bedrock_server` の利用には Microsoft EULA への同意が必要です（アプリの初回フローで提示）
 - `playit.exe` は `playit-cloud/playit-agent`（GPL）の公式リリースから自動取得します
