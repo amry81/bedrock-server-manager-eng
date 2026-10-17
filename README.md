@@ -1,37 +1,37 @@
 # Bedrock Server Manager
 
-Minecraft 統合版（Bedrock Edition）の自宅サーバーを、Windows / Linux で誰でも数クリックで立てて友達と遊べるようにする、完全無料のデスクトップアプリです。
+A completely free desktop application for Windows / Linux that allows anyone to set up a Minecraft Bedrock Edition home server with just a few clicks and play with friends.
 
-公式 `bedrock_server` をラップし、`playit.gg` を介した外部接続（ポート開放不要）まで一通りカバーします。
+It wraps the official `bedrock_server` and covers everything up to external connections via `playit.gg` (no port forwarding required).
 
-## 主な機能
+## Key Features
 
-- サーバーの起動/停止/再起動、コンソール（リアルタイムログ・コマンド送信）、クラッシュ自動再起動
-- 公式 BDS の自動ダウンロード／アップデート（Bedrock-OSS/BDS-Versions の最新安定版を参照）
-- `server.properties` の GUI 編集＋詳細 raw エディタ
-- 複数ワールドの作成・切替・`.mcworld` インポート、停止時自動バックアップ＋復元
-- プレイヤー管理：オンライン一覧（kick/op）、`allowlist.json`、`permissions.json`（XUID）
-- リソース監視：CPU / メモリ / 稼働時間グラフ（直近5分・1秒更新）
-- 外部接続（playit.gg）：シークレット貼付方式でデーモンを自前管理／LAN内アドレス案内／友達への案内文を1クリックコピー
-- スケジュール起動/停止（曜日 + HH:MM、start / stop / restart）
-- アドオン管理（`.mcpack`/`.mcaddon` インポート、`world_*_packs.json` の有効化トグル）
+* Server start / stop / restart, console (real-time logs & command execution), and automatic crash recovery
+* Automatic downloading & updating of official BDS (refers to the latest stable version from Bedrock-OSS/BDS-Versions)
+* GUI editor for `server.properties` + detailed raw editor
+* Multiple world creation, switching, `.mcworld` import, and auto-backup + restore on server stop
+* Player management: online player list (kick/op), `allowlist.json`, and `permissions.json` (XUID)
+* Resource monitoring: CPU / Memory / Uptime graphs (last 5 minutes, updated every 1 second)
+* External connection (playit.gg): secret key pasting method to manage daemon internally / local network address guidance / 1-click copy for friend invitation text
+* Scheduled start/stop (Day of week + HH:MM, start / stop / restart)
+* Add-on management (`.mcpack` / `.mcaddon` import, enabling/disabling via `world_*_packs.json` toggles)
 
-## 動作環境
+## System Requirements
 
-- Windows 10 / 11（x64）
-- Linux x64（実機検証は別環境にて。`tar.gz` 可搬版を配布）
+* Windows 10 / 11 (x64)
+* Linux x64 (verified on a separate environment. Distributed as a portable `tar.gz`)
 
-## インストール / 起動
+## Installation / Setup
 
 ### Windows
 
-1. `Bedrock Server Manager-Setup-0.1.0.exe` を実行（NSIS インストーラ）
-2. **SmartScreen 警告**：「Windows によってPCが保護されました」と出ます。本アプリはコード署名なしのため正常です。**「詳細情報」→「実行」**で進めてください。改ざんなしを確認するには [checksums.sha256](release/checksums.sha256) で SHA256 を照合（`Get-FileHash <file> -Algorithm SHA256`）
-3. インストール先を選択して進める
-4. 初回起動：利用規約 / Microsoft EULA に同意 → 公式 BDS を自動ダウンロード → Dashboard 着地
-5. **▶ サーバーを起動**
+1. Run `Bedrock Server Manager-Setup-0.1.0.exe` (NSIS installer)
+2. **SmartScreen Warning**: "Windows protected your PC" may appear. This is normal because this app is not code-signed. Click **"More info" -> "Run anyway"** to proceed. To verify file integrity, compare the SHA256 checksum in [checksums.sha256](https://www.google.com/search?q=release/checksums.sha256) (`Get-FileHash <file> -Algorithm SHA256`)
+3. Choose the installation directory and proceed
+4. First launch: Agree to the Terms of Service / Microsoft EULA -> Automatically download the official BDS -> Arrive at the Dashboard
+5. **▶ Start Server**
 
-データ・ワールド・設定は `%LOCALAPPDATA%\BedrockServerManager\` に保存されます。
+Data, worlds, and settings are saved in `%LOCALAPPDATA%\BedrockServerManager\`.
 
 ### Linux
 
@@ -39,139 +39,146 @@ Minecraft 統合版（Bedrock Edition）の自宅サーバーを、Windows / Lin
 tar -xzf "Bedrock Server Manager-0.1.0.tar.gz"
 cd "Bedrock Server Manager-0.1.0"
 ./bedrock-server-manager
+
 ```
 
-`Failed to move to new namespace`（chrome-sandbox）が出た場合：
+If `Failed to move to new namespace` (chrome-sandbox) occurs:
 
 ```bash
 sudo chown root:root chrome-sandbox && sudo chmod 4755 chrome-sandbox
-# あるいは
+# Or
 ./bedrock-server-manager --no-sandbox
+
 ```
 
-データ・ワールド・設定は `$XDG_DATA_HOME/BedrockServerManager`（既定 `~/.local/share/BedrockServerManager`）に保存されます。
+Data, worlds, and settings are saved in `$XDG_DATA_HOME/BedrockServerManager` (default: `~/.local/share/BedrockServerManager`).
 
-## 外部接続（playit.gg）
+## External Connection (playit.gg)
 
-1. [playit.gg](https://playit.gg/) でアカウント作成
-2. Agent を追加し、**Minecraft Bedrock（UDP）トンネル**を `127.0.0.1:19132` 向けに作成
-3. 公式インストーラ版で接続した PC では `C:\ProgramData\playit_gg\playit.toml`（Linux は `~/.config/playit_gg/playit.toml` 等）に `secret_key` が保存されています。それを取り出してアプリの **Config → 外部接続 → シークレットキー** に貼って保存
-4. playit ダッシュボードに表示される外部アドレス（例 `xxx.gl.at.ply.gg:12345`）を Config → 外部接続 → 外部アドレス欄に保存
-5. **外部接続を有効にする** → アプリが `playit.exe --secret <KEY>`（Linux は `playit --secret <KEY>`）でデーモンを起動
-6. Dashboard で **▶ サーバーを起動**
-7. **「友達への案内文をコピー」** ボタンで定型文をコピー → LINE 等に貼って友達に送る
+1. Create an account at [playit.gg](https://playit.gg/)
+2. Add an Agent and create a **Minecraft Bedrock (UDP) tunnel** pointing to `127.0.0.1:19132`
+3. On PCs using the official installer version, the `secret_key` is stored in `C:\ProgramData\playit_gg\playit.toml` (or `~/.config/playit_gg/playit.toml` on Linux). Extract it, paste it into **Config -> External Connection -> Secret Key** in the app, and save
+4. Copy the external address shown on the playit dashboard (e.g., `xxx.gl.at.ply.gg:12345`) and save it in Config -> External Connection -> External Address
+5. **Enable External Connection** -> The app launches the daemon via `playit.exe --secret <KEY>` (or `playit --secret <KEY>` on Linux)
+6. On the Dashboard, click **▶ Start Server**
+7. Click the **"Copy invitation text for friends"** button to copy the template text -> Paste into messaging apps (e.g., LINE) and send to friends
 
-> 公式 playit サービス（`playitd`）が既に常駐している場合、アプリが同じシークレットで起動すると同一エージェントの2重起動になります。アプリで管理するなら先に公式サービスを停止してください（Windows: 管理者で `net stop playitd`、自動起動も無効化推奨）。
+> If the official playit service (`playitd`) is already running in the background, launching the app with the same secret key will result in duplicate instances of the same agent. If you want the app to manage it, stop the official service first (Windows: Run `net stop playitd` as administrator, disabling auto-start is recommended).
 
-## Windows でログオン時に自動起動
+## Launching Automatically at Windows Logon
 
-Bedrock サーバーと playit はアプリが起動している間だけ動きます。PC 起動時にアプリを自動起動するには：
+Bedrock Server and playit run only while the app is active. To launch the app automatically when your PC boots:
 
-1. `Win + R` → `taskschd.msc` → タスクスケジューラを開く
-2. 「**基本タスクの作成**」→ 名前: `Bedrock Server Manager`
-3. トリガー: **ログオン時**
-4. 操作: **プログラムの開始** → プログラム/スクリプト：インストールした `Bedrock Server Manager.exe` を指定
-5. 「最上位の特権で実行する」にチェック（プロセス管理を安定させたい場合）
-6. 完了
+1. Press `Win + R` -> type `taskschd.msc` -> Open Task Scheduler
+2. Click "**Create Basic Task...**" -> Name: `Bedrock Server Manager`
+3. Trigger: **When I log on**
+4. Action: **Start a program** -> Program/script: Select the installed `Bedrock Server Manager.exe`
+5. Check "Run with highest privileges" (recommended for stable process management)
+6. Finish
 
-スケジュール起動/停止（Config → スケジュール）と組み合わせると、PC 起動 → アプリ起動 → 指定時刻にサーバー自動起動、まで自動化できます。
+Combined with scheduled start/stop (Config -> Schedule), you can automate the entire workflow: PC startup -> App launch -> Automatic server start at the specified time.
 
-## 開発
+## Development
 
 ```bash
 npm install
-npm run dev     # vite + electron 起動（ホットリロード）
+npm run dev     # Starts vite + electron (hot reload)
 npm run typecheck
-npm run build   # tsc --noEmit && vite build（renderer + main + preload を dist/, dist-electron/ に生成）
-npm run dist    # build → electron-builder で OS 別パッケージ
+npm run build   # tsc --noEmit && vite build (generates renderer + main + preload into dist/, dist-electron/)
+npm run dist    # build -> OS-specific packaging via electron-builder
+
 ```
 
-リポジトリ構成：
+Repository Structure:
 
 ```
 src/
-├── main/            Electron Main プロセス
+├── main/            Electron Main process
 │   ├── index.ts
-│   ├── server-manager.ts   bedrock_server プロセス管理
-│   ├── playit-manager.ts   playit デーモン管理（シークレット方式）
-│   ├── config-manager.ts   server.properties 読み書き
-│   ├── world-manager.ts    ワールド作成/切替/.mcworld インポート/デフォルト準備
-│   ├── backup-manager.ts   ワールドバックアップ zip 化＋復元
-│   ├── addon-manager.ts    .mcpack/.mcaddon 取り込み・有効化
+│   ├── server-manager.ts   bedrock_server process management
+│   ├── playit-manager.ts   playit daemon management (secret key method)
+│   ├── config-manager.ts   server.properties read/write
+│   ├── world-manager.ts    World creation/switching/.mcworld import/default preparation
+│   ├── backup-manager.ts   World backup archiving to zip + restore
+│   ├── addon-manager.ts    .mcpack/.mcaddon importing & enabling
 │   ├── player-manager.ts   allowlist/permissions/known-players
-│   ├── downloader.ts       BDS 自動DL（プラットフォーム別 URL）
-│   ├── log-parser.ts       ログレベル判定・入退室イベント抽出
-│   ├── metrics.ts          pidusage で CPU/メモリ
-│   ├── scheduler.ts        曜日+時刻のジョブ判定
-│   ├── platform.ts         OS差異抽象化（バイナリ名・DLパス・chmod）
-│   ├── paths.ts            データルート（Win: LOCALAPPDATA / Linux: XDG_DATA_HOME）
-│   ├── settings.ts         app-settings.json 読み書き
-│   ├── ipc.ts              IPC ハンドラ集約
-│   └── preload.ts          contextBridge で限定公開
+│   ├── downloader.ts       BDS auto-download (platform-specific URL)
+│   ├── log-parser.ts       Log level detection & player join/leave event extraction
+│   ├── metrics.ts          CPU/Memory tracking via pidusage
+│   ├── scheduler.ts        Day + time job scheduling
+│   ├── platform.ts         OS difference abstraction (binary names, DL paths, chmod)
+│   ├── paths.ts            Data root paths (Win: LOCALAPPDATA / Linux: XDG_DATA_HOME)
+│   ├── settings.ts         app-settings.json read/write
+│   ├── ipc.ts              IPC handler consolidation
+│   └── preload.ts          Restricted exposure via contextBridge
 ├── renderer/        Electron Renderer (React + Vite + Tailwind v4)
-└── shared/          Main/Renderer 共通型
+└── shared/          Shared types for Main/Renderer
+
 ```
 
-## ビルド時の既知の問題
+## Known Build Issues
 
-### Windows: `winCodeSign` 抽出で symlink エラー
+### Windows: Symlink error during `winCodeSign` extraction
 
-`electron-builder` が `winCodeSign` バンドルを展開する際、macOS 用シンボリックリンク（.dylib）を作ろうとして失敗することがあります（`Cannot create symbolic link`）。**Windows の開発者モード ON**、または **管理者で実行**すれば解消します。今回の暫定回避：
+When `electron-builder` extracts the `winCodeSign` bundle, it may attempt to create macOS symbolic links (.dylib) and fail (`Cannot create symbolic link`). Enabling **Windows Developer Mode** or **running as Administrator** resolves this issue. Temporary workaround:
 
 ```bash
-# Cache/winCodeSign に手動で展開済みフォルダを置く（darwin 除外）
+# Manually place the extracted folder into Cache/winCodeSign (excluding darwin)
 node_modules/7zip-bin/win/x64/7za.exe x <hash>.7z -o<HOME>/AppData/Local/electron-builder/Cache/winCodeSign/winCodeSign-2.6.0 -xr'!darwin' -y
+
 ```
 
-### Linux AppImage は Windows ホストから生成不可
+### Linux AppImage cannot be built from a Windows host
 
-`AppImage` 生成も symlink 作成権限が必要なため、Windows からは失敗します。`tar.gz` ターゲットなら成功します。完全な AppImage が必要なら Linux ホスト（または Docker）でビルドしてください。
+Generating an `AppImage` also requires symbolic link permissions, which causes builds from Windows to fail. Target `tar.gz` builds will succeed. If you need a complete AppImage, build it on a Linux host (or Docker).
 
 ### Linux: chrome-sandbox
 
-Electron アプリ全般の制約で、`chrome-sandbox` に setuid root が必要です。tar.gz 展開後に上記の `chmod 4755` で対応するか、`--no-sandbox` で起動してください。
+Due to a general Electron constraint, `chrome-sandbox` requires setuid root. Apply `chmod 4755` as shown above after extracting the tar.gz file, or launch with `--no-sandbox`.
 
-## リリース公開（メンテナ向け）
+## Release Publishing (For Maintainers)
 
-新バージョンを GitHub Releases に公開する手順：
+Steps to publish a new version to GitHub Releases:
 
 ```bash
-# 1. ビルド成果物を再生成
+# 1. Regenerate build artifacts
 npm run build
 npx electron-builder --win --linux tar.gz
 
-# 2. SHA256 を生成
+# 2. Generate SHA256
 node -e "const fs=require('fs'),c=require('crypto'),p=require('path');
 const dir='release';
 const files=['Bedrock Server Manager-Setup-0.1.0.exe','Bedrock-Server-Manager-portable-0.1.0.zip','Bedrock Server Manager-0.1.0.tar.gz'];
 const o=files.map(f=>c.createHash('sha256').update(fs.readFileSync(p.join(dir,f))).digest('hex')+'  '+f).join('\n');
 fs.writeFileSync(p.join(dir,'checksums.sha256'),o+'\n');console.log(o);"
 
-# 3. タグ付け & push
+# 3. Create tag & push
 git tag v0.1.0
 git push origin main --tags
 
-# 4. gh CLI で Release 作成（gh が未インストールなら手順5へ）
+# 4. Create Release via gh CLI (If gh is not installed, proceed to step 5)
 gh release create v0.1.0 \
   "release/Bedrock Server Manager-Setup-0.1.0.exe" \
   "release/Bedrock-Server-Manager-portable-0.1.0.zip" \
   "release/Bedrock Server Manager-0.1.0.tar.gz" \
   "release/checksums.sha256" \
   --title "v0.1.0" --notes-file docs/release-notes-v0.1.0.md
+
 ```
 
-**ブラウザ手順（gh が無い場合）:**
-1. GitHub の該当リポジトリ → **Releases** → **Draft a new release**
-2. タグ：`v0.1.0`（main を指す）
-3. タイトル：`v0.1.0`、本文は `docs/release-notes-v0.1.0.md` の内容をコピペ
-4. `release/` の4ファイル（installer / portable.zip / tar.gz / checksums.sha256）を添付
+**Browser Instructions (If `gh` CLI is unavailable):**
+
+1. Go to the target repository on GitHub -> **Releases** -> **Draft a new release**
+2. Tag: `v0.1.0` (pointing to main)
+3. Title: `v0.1.0`, copy and paste the contents of `docs/release-notes-v0.1.0.md` into the description
+4. Attach the 4 files in `release/` (installer / portable.zip / tar.gz / checksums.sha256)
 5. **Publish release**
 
-宣伝用のドラフト（X 投稿・YouTube 台本・説明文）は [`docs/promo.md`](docs/promo.md) を参照。
+For promotional drafts (X posts, YouTube scripts, descriptions), refer to [`docs/promo.md`](https://www.google.com/search?q=docs/promo.md).
 
-## ライセンス / 利用上の注意
+## License / Terms of Use
 
-- アプリ本体は **MIT License**（[LICENSE](LICENSE)）
-- 本アプリは `bedrock_server` および `playit.exe` を**同梱しません**。初回起動時に公式から取得します
-- `bedrock_server` の利用には Microsoft EULA への同意が必要です（アプリの初回フローで提示）
-- `playit.exe` は `playit-cloud/playit-agent`（GPL）の公式リリースから自動取得します
+* The app core is licensed under the **MIT License** ([LICENSE](https://www.google.com/search?q=LICENSE))
+* This app **does not bundle** `bedrock_server` or `playit.exe`. They are fetched from official sources on initial launch
+* Use of `bedrock_server` requires agreement to the Microsoft EULA (presented during the app's initial launch flow)
+* `playit.exe` is automatically downloaded from the official releases of `playit-cloud/playit-agent` (GPL)
