@@ -10,6 +10,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', icon: '\u{1F3E0}' },
   { key: 'world', label: 'World', icon: '\u{1F30D}' },
+  { key: 'biome-finder', label: 'Biome Finder', icon: '\u{1F5FA}' },
   { key: 'addon', label: 'Addon', icon: '\u{1F9E9}' },
   { key: 'player', label: 'Player', icon: '\u{1F465}' },
   { key: 'config', label: 'Config', icon: '⚙️' },

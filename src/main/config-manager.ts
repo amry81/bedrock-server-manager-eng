@@ -68,7 +68,7 @@ export function writeConfig(payload: ConfigSetPayload): ConfigSetResult {
   const file = propertiesPath();
   try {
     if (!fs.existsSync(file)) {
-      return { ok: false, error: 'server.properties が見つかりません。先にサーバー本体をインストールしてください。' };
+      return { ok: false, error: 'server.properties was not found. Install the server first.' };
     }
     if (typeof payload.raw === 'string') {
       fs.writeFileSync(file, payload.raw, 'utf-8');
@@ -79,7 +79,7 @@ export function writeConfig(payload: ConfigSetPayload): ConfigSetResult {
       fs.writeFileSync(file, applyValues(current, payload.values), 'utf-8');
       return { ok: true };
     }
-    return { ok: false, error: '更新内容が指定されていません。' };
+    return { ok: false, error: 'No configuration changes were provided.' };
   } catch (err) {
     return { ok: false, error: (err as Error).message };
   }

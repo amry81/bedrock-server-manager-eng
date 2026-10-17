@@ -11,7 +11,14 @@ import type {
 } from '@shared/types';
 import { api } from '../ipc-client';
 
-export type PageKey = 'dashboard' | 'world' | 'addon' | 'player' | 'config' | 'console';
+export type PageKey =
+  | 'dashboard'
+  | 'world'
+  | 'biome-finder'
+  | 'addon'
+  | 'player'
+  | 'config'
+  | 'console';
 
 const MAX_LOGS = 5000;
 const MAX_METRICS = 300; // 5 minutes at 1s interval

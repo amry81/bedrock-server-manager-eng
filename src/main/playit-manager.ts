@@ -61,7 +61,7 @@ class PlayitManager extends EventEmitter {
   setSecret(secret: string): PlayitStatus {
     writeSettings({ playitSecret: secret.trim() });
     if (this.state === 'needs-secret' || this.state === 'disabled') {
-      this.setState('disabled', 'シークレットを保存しました。');
+      this.setState('disabled', 'Secret saved.');
     } else {
       this.emit('status', this.getStatus());
     }
@@ -77,13 +77,13 @@ class PlayitManager extends EventEmitter {
   private async ensureInstalled(): Promise<void> {
     if (this.isInstalled()) return;
     ensureDirs();
-    this.setState('installing', `${playitBinaryName()} をダウンロードしています...`);
+    this.setState('installing', `Downloading ${playitBinaryName()}...`);
     const res = await fetch(playitDownloadUrl(), {
       headers: { 'User-Agent': BROWSER_UA },
       redirect: 'follow',
     });
     if (!res.ok || !res.body) {
-      throw new Error(`playit.exe のダウンロードに失敗 (HTTP ${res.status})`);
+      throw new Error(`Failed to download playit.exe (HTTP ${res.status})`);
     }
     const tmp = this.exePath() + '.download';
     const reader = res.body.getReader();
@@ -104,7 +104,7 @@ class PlayitManager extends EventEmitter {
 
     const secret = readSettings().playitSecret;
     if (!secret) {
-      this.setState('needs-secret', 'playit.gg のシークレットキーを設定してください。');
+      this.setState('needs-secret', 'Set your playit.gg secret key.');
       return this.getStatus();
     }
 
@@ -116,14 +116,14 @@ class PlayitManager extends EventEmitter {
     }
 
     this.detectedAddress = undefined;
-    this.setState('starting', 'playit エージェントを起動しています...');
+    this.setState('starting', 'Starting the playit agent...');
 
     try {
       this.child = spawn(this.exePath(), ['--secret', secret], {
         windowsHide: true,
       }) as ChildProcessWithoutNullStreams;
     } catch (err) {
-      this.setState('error', `起動に失敗: ${(err as Error).message}`);
+      this.setState('error', `Failed to start: ${(err as Error).message}`);
       this.child = null;
       return this.getStatus();
     }
@@ -136,7 +136,7 @@ class PlayitManager extends EventEmitter {
     this.child.on('exit', () => {
       this.child = null;
       if (this.state !== 'disabled') {
-        this.setState('disabled', 'playit エージェントが終了しました。');
+        this.setState('disabled', 'The playit agent has exited.');
       }
     });
 
@@ -167,7 +167,7 @@ class PlayitManager extends EventEmitter {
       const auth = /InvalidAgentKey/i.test(line);
       this.setState(
         'error',
-        auth ? 'シークレットキーが無効です。再設定してください。' : line.trim(),
+        auth ? 'Invalid secret key. Set it again.' : line.trim(),
       );
       return;
     }
@@ -175,7 +175,7 @@ class PlayitManager extends EventEmitter {
     const tunnel = line.match(TUNNEL_RE);
     if (tunnel) {
       this.detectedAddress = tunnel[2] ? `${tunnel[1]}:${tunnel[2]}` : tunnel[1];
-      this.setState('connected', '外部接続が有効です。');
+      this.setState('connected', 'External access is enabled.');
       return;
     }
     if (
@@ -183,7 +183,7 @@ class PlayitManager extends EventEmitter {
         line,
       )
     ) {
-      if (this.state !== 'connected') this.setState('connected', '外部接続が有効です。');
+      if (this.state !== 'connected') this.setState('connected', 'External access is enabled.');
     }
   }
 

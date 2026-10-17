@@ -196,7 +196,7 @@ export function importAddons(filePaths: string[]): AddonImportResult {
       void ext;
     }
     if (imported.length === 0) {
-      return { ok: false, error: '有効な manifest.json を含むパックが見つかりませんでした。' };
+      return { ok: false, error: 'No packs containing a valid manifest.json were found.' };
     }
     return { ok: true, imported };
   } catch (err) {
@@ -208,9 +208,9 @@ export function deleteAddon(type: AddonType, folder: string): AddonActionResult 
   const parent = type === 'behavior' ? behaviorDir() : resourceDir();
   const target = path.resolve(parent, folder);
   if (!target.startsWith(path.resolve(parent))) {
-    return { ok: false, error: '不正なフォルダ指定です。' };
+    return { ok: false, error: 'Invalid folder path.' };
   }
-  if (!fs.existsSync(target)) return { ok: false, error: 'パックが見つかりません。' };
+  if (!fs.existsSync(target)) return { ok: false, error: 'Pack not found.' };
   try {
     fs.rmSync(target, { recursive: true, force: true });
     return { ok: true };
@@ -250,7 +250,7 @@ export function getWorldPacks(world: string): WorldPacks {
 export function setWorldPacks(world: string, packs: WorldPacks): AddonActionResult {
   try {
     const dir = worldDir(world);
-    if (!fs.existsSync(dir)) return { ok: false, error: 'ワールドが見つかりません。' };
+    if (!fs.existsSync(dir)) return { ok: false, error: 'World not found.' };
     writePackList(path.join(dir, 'world_behavior_packs.json'), packs.behavior);
     writePackList(path.join(dir, 'world_resource_packs.json'), packs.resource);
     return { ok: true };

@@ -60,24 +60,24 @@ function fire(entry: ScheduleEntry, log: (line: LogLine) => void): void {
   switch (entry.action) {
     case 'start':
       if (status === 'stopped' || status === 'error') {
-        label = 'スケジュール起動';
+        label = 'Scheduled start';
         result = serverManager.start();
       } else {
-        label = 'スケジュール起動（スキップ：既に起動中）';
+        label = 'Scheduled start (skipped: already running)';
         result = { ok: true };
       }
       break;
     case 'stop':
       if (status === 'running') {
-        label = 'スケジュール停止';
+        label = 'Scheduled stop';
         result = serverManager.stop();
       } else {
-        label = 'スケジュール停止（スキップ：稼働中ではない）';
+        label = 'Scheduled stop (skipped: not running)';
         result = { ok: true };
       }
       break;
     case 'restart':
-      label = 'スケジュール再起動';
+      label = 'Scheduled restart';
       result = serverManager.restart();
       break;
   }
@@ -86,7 +86,7 @@ function fire(entry: ScheduleEntry, log: (line: LogLine) => void): void {
     ts: Date.now(),
     level: result.ok ? 'INFO' : 'ERROR',
     source: 'system',
-    text: result.ok ? `${label} を実行しました（${entry.time}）` : `${label} 失敗: ${result.error}`,
+    text: result.ok ? `${label} executed (${entry.time})` : `${label} failed: ${result.error}`,
   });
 }
 

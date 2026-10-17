@@ -59,7 +59,7 @@ function backupFilePath(id: string): string {
   // id is "<world>/<file>.zip" — keep it strictly under backupsDir.
   const resolved = path.resolve(backupsDir(), id);
   if (!resolved.startsWith(path.resolve(backupsDir()))) {
-    throw new Error('不正なバックアップIDです。');
+    throw new Error('Invalid backup ID.');
   }
   return resolved;
 }
@@ -85,7 +85,7 @@ function pruneOldBackups(world: string): void {
 export function createBackup(world: string): BackupResult {
   const src = path.join(worldsDir(), world);
   if (!fs.existsSync(src)) {
-    return { ok: false, error: 'ワールドが見つかりません。' };
+    return { ok: false, error: 'World not found.' };
   }
   try {
     const destDir = path.join(backupsDir(), world);
@@ -112,7 +112,7 @@ export function restoreBackup(id: string): BackupResult {
   } catch (err) {
     return { ok: false, error: (err as Error).message };
   }
-  if (!fs.existsSync(file)) return { ok: false, error: 'バックアップが見つかりません。' };
+  if (!fs.existsSync(file)) return { ok: false, error: 'Backup not found.' };
 
   const world = id.split('/')[0];
   const target = path.join(worldsDir(), world);
@@ -125,7 +125,7 @@ export function restoreBackup(id: string): BackupResult {
     zip.extractAllTo(worldsDir(), /*overwrite*/ true);
 
     if (!fs.existsSync(target)) {
-      throw new Error('展開後にワールドフォルダが見つかりません。');
+      throw new Error('World folder not found after extraction.');
     }
     // Success: drop the old copy.
     if (fs.existsSync(tempOld)) fs.rmSync(tempOld, { recursive: true, force: true });

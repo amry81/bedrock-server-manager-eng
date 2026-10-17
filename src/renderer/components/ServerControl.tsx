@@ -3,11 +3,11 @@ import { api } from '../ipc-client';
 import type { ServerStatus } from '@shared/types';
 
 const STATUS_LABEL: Record<ServerStatus, string> = {
-  stopped: '停止中',
-  starting: '起動中',
-  running: '起動済み',
-  stopping: '停止処理中',
-  error: 'エラー',
+  stopped: 'Stopped',
+  starting: 'Starting',
+  running: 'Running',
+  stopping: 'Stopping',
+  error: 'Error',
 };
 
 const STATUS_COLOR: Record<ServerStatus, string> = {
@@ -45,11 +45,11 @@ export default function ServerControl() {
           ' disabled:cursor-not-allowed disabled:opacity-60'
         }
       >
-        {running ? '■ 停止' : '▶ サーバーを起動'}
+        {running ? '■ Stop Server' : '▶ Start Server'}
       </button>
       <div className="flex items-center gap-2 text-xs text-neutral-400">
         <span className={'inline-block h-2 w-2 rounded-full ' + STATUS_COLOR[status]} />
-        <span>状態: {STATUS_LABEL[status]}</span>
+        <span>Status: {STATUS_LABEL[status]}</span>
       </div>
     </div>
   );

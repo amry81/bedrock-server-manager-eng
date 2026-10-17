@@ -9,19 +9,19 @@ function fmtSize(bytes: number): string {
 }
 
 function fmtBackupTime(ts: number): string {
-  return new Date(ts).toLocaleString('ja-JP', { hour12: false });
+  return new Date(ts).toLocaleString('en-US', { hour12: false });
 }
 
 const GAMEMODES = [
-  { value: 'survival', label: 'サバイバル' },
-  { value: 'creative', label: 'クリエイティブ' },
-  { value: 'adventure', label: 'アドベンチャー' },
+  { value: 'survival', label: 'Survival' },
+  { value: 'creative', label: 'Creative' },
+  { value: 'adventure', label: 'Adventure' },
 ];
 const DIFFICULTIES = [
-  { value: 'peaceful', label: 'ピースフル' },
-  { value: 'easy', label: 'イージー' },
-  { value: 'normal', label: 'ノーマル' },
-  { value: 'hard', label: 'ハード' },
+  { value: 'peaceful', label: 'Peaceful' },
+  { value: 'easy', label: 'Easy' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'hard', label: 'Hard' },
 ];
 
 export default function World() {
@@ -53,10 +53,10 @@ export default function World() {
     setMsg(null);
     const res = await api.createBackup(name);
     if (res.ok) {
-      setMsg(`「${name}」をバックアップしました`);
+      setMsg(`Created a backup of "${name}".`);
       await refreshBackups();
     } else {
-      setMsg(`バックアップ失敗: ${res.error}`);
+      setMsg(`Backup failed: ${res.error}`);
     }
   };
 
@@ -64,17 +64,17 @@ export default function World() {
     setMsg(null);
     const res = await api.restoreBackup(b.id);
     if (res.ok) {
-      setMsg(`「${b.world}」を復元しました`);
+      setMsg(`Restored "${b.world}".`);
       await refresh();
     } else {
-      setMsg(`復元失敗: ${res.error}`);
+      setMsg(`Restore failed: ${res.error}`);
     }
   };
 
   const onDeleteBackup = async (b: BackupInfo) => {
     const res = await api.deleteBackup(b.id);
     if (res.ok) await refreshBackups();
-    else setMsg(`削除失敗: ${res.error}`);
+    else setMsg(`Delete failed: ${res.error}`);
   };
 
   const updateBackupSettings = async (patch: Partial<BackupSettings>) => {
@@ -87,10 +87,10 @@ export default function World() {
     setMsg(null);
     const res = await api.switchWorld(name);
     if (res.ok) {
-      setMsg(`「${name}」に切り替えました`);
+      setMsg(`Switched to "${name}".`);
       await refresh();
     } else {
-      setMsg(`切替失敗: ${res.error}`);
+      setMsg(`Switch failed: ${res.error}`);
     }
   };
 
@@ -99,7 +99,7 @@ export default function World() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-semibold">World</h2>
-          <p className="text-neutral-400">ワールドの一覧・作成・切り替え。</p>
+          <p className="text-neutral-400">View, create, and switch between worlds.</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -110,15 +110,15 @@ export default function World() {
               const res = await api.importWorld();
               if (res.cancelled) return;
               if (res.ok) {
-                setMsg(`「${res.worldName}」をインポートしました`);
+                setMsg(`Imported "${res.worldName}".`);
                 await refresh();
               } else {
-                setMsg(`インポート失敗: ${res.error}`);
+                setMsg(`Import failed: ${res.error}`);
               }
             }}
             className="rounded-md bg-neutral-700 px-4 py-2 text-sm font-medium text-neutral-100 hover:bg-neutral-600 disabled:opacity-50"
           >
-            📥 .mcworld をインポート
+            📥 Import .mcworld
           </button>
           <button
             type="button"
@@ -126,7 +126,7 @@ export default function World() {
             onClick={() => setShowModal(true)}
             className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
-            ＋ 新規作成
+            + Create World
           </button>
         </div>
       </div>
@@ -134,14 +134,14 @@ export default function World() {
       {msg && <p className="text-sm text-emerald-400">{msg}</p>}
       {!canModify && (
         <p className="text-xs text-yellow-400">
-          サーバー稼働中です。切り替え・作成は次回起動時に反映されます。
+          The server is running. World changes and new worlds will take effect the next time it starts.
         </p>
       )}
 
       {!installState?.installed ? (
-        <p className="text-sm text-neutral-500">サーバー本体が未インストールです。</p>
+        <p className="text-sm text-neutral-500">The server is not installed.</p>
       ) : worlds.length === 0 ? (
-        <p className="text-sm text-neutral-500">ワールドがありません。「新規作成」から作成してください。</p>
+        <p className="text-sm text-neutral-500">No worlds found. Select "Create World" to create one.</p>
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {worlds.map((w) => (
@@ -161,12 +161,12 @@ export default function World() {
                 </div>
                 {w.active && (
                   <span className="rounded bg-emerald-600 px-2 py-0.5 text-xs text-white">
-                    アクティブ
+                    Active
                   </span>
                 )}
               </div>
               <p className="mt-2 text-xs text-neutral-500">
-                {w.generated ? '生成済み' : '未生成（次回起動時に生成）'}
+                {w.generated ? 'Generated' : 'Not generated (will be created on next start)'}
               </p>
               <div className="mt-3 flex gap-2">
                 {!w.active && (
@@ -175,7 +175,7 @@ export default function World() {
                     onClick={() => onSwitch(w.name)}
                     className="rounded bg-neutral-700 px-3 py-1.5 text-xs text-neutral-100 hover:bg-neutral-600"
                   >
-                    切り替え
+                    Switch
                   </button>
                 )}
                 <button
@@ -183,14 +183,14 @@ export default function World() {
                   onClick={() => onBackup(w.name)}
                   className="rounded bg-neutral-700 px-3 py-1.5 text-xs text-neutral-100 hover:bg-neutral-600"
                 >
-                  バックアップ
+                  Back Up
                 </button>
                 <button
                   type="button"
                   onClick={() => api.openWorldFolder(w.name)}
                   className="rounded bg-neutral-800 px-3 py-1.5 text-xs text-neutral-300 hover:bg-neutral-700"
                 >
-                  フォルダを開く
+                  Open Folder
                 </button>
               </div>
             </div>
@@ -202,13 +202,13 @@ export default function World() {
       {installState?.installed && (
         <section className="rounded-lg border border-neutral-800 bg-neutral-900 p-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-neutral-200">バックアップ</h3>
+            <h3 className="text-sm font-semibold text-neutral-200">Backups</h3>
             <button
               type="button"
               onClick={() => api.openBackupsFolder()}
               className="rounded bg-neutral-800 px-2 py-1 text-xs text-neutral-300 hover:bg-neutral-700"
             >
-              フォルダを開く
+              Open Folder
             </button>
           </div>
 
@@ -220,10 +220,10 @@ export default function World() {
                   checked={backupSettings.autoBackupOnStop}
                   onChange={(e) => updateBackupSettings({ autoBackupOnStop: e.target.checked })}
                 />
-                サーバー停止時に自動バックアップ
+                Automatically back up when the server stops
               </label>
               <label className="flex items-center gap-2">
-                保持世代数
+                Backups to keep
                 <input
                   type="number"
                   min={1}
@@ -240,7 +240,7 @@ export default function World() {
 
           <div className="mt-4">
             {backups.length === 0 ? (
-              <p className="text-sm text-neutral-500">バックアップはまだありません。</p>
+              <p className="text-sm text-neutral-500">No backups yet.</p>
             ) : (
               <ul className="space-y-2">
                 {backups.map((b) => (
@@ -259,17 +259,17 @@ export default function World() {
                         type="button"
                         disabled={!canModify}
                         onClick={() => onRestore(b)}
-                        title={!canModify ? 'サーバー停止中のみ復元できます' : undefined}
+                        title={!canModify ? 'The server must be stopped to restore a backup.' : undefined}
                         className="rounded bg-neutral-700 px-2 py-1 text-xs text-neutral-100 hover:bg-neutral-600 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        復元
+                        Restore
                       </button>
                       <button
                         type="button"
                         onClick={() => onDeleteBackup(b)}
                         className="rounded bg-red-700/80 px-2 py-1 text-xs text-white hover:bg-red-600"
                       >
-                        削除
+                        Delete
                       </button>
                     </div>
                   </li>
@@ -285,10 +285,10 @@ export default function World() {
           onClose={() => setShowModal(false)}
           onCreated={async (name) => {
             setShowModal(false);
-            setMsg(`「${name}」を作成しました`);
+            setMsg(`Created "${name}".`);
             await refresh();
           }}
-          onError={(e) => setMsg(`作成失敗: ${e}`)}
+          onError={(e) => setMsg(`Creation failed: ${e}`)}
         />
       )}
     </div>
@@ -312,23 +312,23 @@ function CreateWorldModal({
 
   const submit = async () => {
     if (!name.trim()) {
-      onError('ワールド名を入力してください');
+      onError('Enter a world name.');
       return;
     }
     setBusy(true);
     const res = await api.createWorld({ name: name.trim(), seed: seed.trim(), gamemode, difficulty });
     setBusy(false);
     if (res.ok) onCreated(name.trim());
-    else onError(res.error ?? '不明なエラー');
+    else onError(res.error ?? 'Unknown error.');
   };
 
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center bg-neutral-950/80 p-8">
       <div className="w-full max-w-md rounded-xl border border-neutral-800 bg-neutral-900 p-6">
-        <h3 className="text-lg font-semibold">新規ワールド作成</h3>
+        <h3 className="text-lg font-semibold">Create World</h3>
         <div className="mt-4 space-y-4">
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-neutral-400">ワールド名</label>
+            <label className="text-xs text-neutral-400">World Name</label>
             <input
               type="text"
               value={name}
@@ -338,18 +338,18 @@ function CreateWorldModal({
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-neutral-400">シード値（空欄でランダム）</label>
+            <label className="text-xs text-neutral-400">Seed (leave blank for random)</label>
             <input
               type="text"
               value={seed}
               onChange={(e) => setSeed(e.target.value)}
-              placeholder="（任意）"
+              placeholder="Optional"
               className="rounded bg-neutral-800 px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-neutral-600"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-neutral-400">ゲームモード</label>
+              <label className="text-xs text-neutral-400">Game Mode</label>
               <select
                 value={gamemode}
                 onChange={(e) => setGamemode(e.target.value)}
@@ -363,7 +363,7 @@ function CreateWorldModal({
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-neutral-400">難易度</label>
+              <label className="text-xs text-neutral-400">Difficulty</label>
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
@@ -384,7 +384,7 @@ function CreateWorldModal({
             onClick={onClose}
             className="rounded-md bg-neutral-800 px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-700"
           >
-            キャンセル
+            Cancel
           </button>
           <button
             type="button"
@@ -392,7 +392,7 @@ function CreateWorldModal({
             onClick={submit}
             className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
-            {busy ? '作成中...' : '作成'}
+            {busy ? 'Creating...' : 'Create'}
           </button>
         </div>
       </div>

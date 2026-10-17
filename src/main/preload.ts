@@ -73,6 +73,9 @@ const api: AppApi = {
   onPlayitStatus: (cb) => subscribe<PlayitStatus>('playit:status', cb),
 
   openExternal: (url) => ipcRenderer.invoke('app:openExternal', url),
+  showBiomeFinder: (seed, bounds) => ipcRenderer.invoke('biome-finder:show', seed, bounds),
+  setBiomeFinderBounds: (bounds) => ipcRenderer.invoke('biome-finder:setBounds', bounds),
+  hideBiomeFinder: () => ipcRenderer.invoke('biome-finder:hide'),
 
   onLog: (cb) => subscribe<LogLine>('server:log', cb),
   onStatus: (cb) => subscribe<ServerStatus>('server:status', cb),

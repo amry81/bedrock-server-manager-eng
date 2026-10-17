@@ -41,7 +41,7 @@ type ProgressCb = (p: DownloadProgress) => void;
 
 async function fetchVersions(): Promise<VersionsJson> {
   const res = await fetch(VERSIONS_URL, { headers: { 'User-Agent': BROWSER_UA } });
-  if (!res.ok) throw new Error(`versions.json の取得に失敗 (HTTP ${res.status})`);
+  if (!res.ok) throw new Error(`Failed to fetch versions.json (HTTP ${res.status})`);
   return (await res.json()) as VersionsJson;
 }
 
@@ -103,7 +103,7 @@ async function resolveTarget(): Promise<{ url: string; version: string }> {
 async function downloadZip(url: string, dest: string, onProgress: ProgressCb): Promise<void> {
   const res = await fetch(url, { headers: { 'User-Agent': BROWSER_UA } });
   if (!res.ok || !res.body) {
-    throw new Error(`ダウンロードに失敗 (HTTP ${res.status})`);
+    throw new Error(`Download failed (HTTP ${res.status})`);
   }
   const total = Number(res.headers.get('content-length')) || 0;
   let received = 0;
@@ -150,16 +150,16 @@ function extractZip(zipPath: string, isUpdate: boolean): void {
 export async function downloadServer(onProgress: ProgressCb): Promise<DownloadResult> {
   ensureDirs();
   try {
-    onProgress({ phase: 'resolving', message: 'バージョン情報を取得しています...' });
+    onProgress({ phase: 'resolving', message: 'Fetching version information...' });
     const { url, version } = await resolveTarget();
-    onProgress({ phase: 'resolving', version, message: `バージョン ${version} を取得します` });
+    onProgress({ phase: 'resolving', version, message: `Getting version ${version}` });
 
     const isUpdate = fs.existsSync(defaultBedrockExe());
     const tmpZip = path.join(binDir(), `bedrock-server-${version}.download.zip`);
 
     await downloadZip(url, tmpZip, onProgress);
 
-    onProgress({ phase: 'extracting', version, message: '展開しています...' });
+    onProgress({ phase: 'extracting', version, message: 'Extracting files...' });
     extractZip(tmpZip, isUpdate);
     try {
       fs.unlinkSync(tmpZip);
@@ -179,7 +179,7 @@ export async function downloadServer(onProgress: ProgressCb): Promise<DownloadRe
       /* non-fatal: BDS will generate it on first start */
     }
 
-    onProgress({ phase: 'done', version, percent: 100, message: '完了しました' });
+    onProgress({ phase: 'done', version, percent: 100, message: 'Complete' });
     return { ok: true, version };
   } catch (err) {
     const message = (err as Error).message;

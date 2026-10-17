@@ -38,21 +38,21 @@ export default function Addon() {
     if (res.cancelled) return;
     if (res.ok) {
       const count = res.imported?.length ?? 0;
-      setMsg(`${count} 個のパックをインポートしました`);
+      setMsg(`${count} pack${count === 1 ? '' : 's'} imported.`);
       await reload();
     } else {
-      setMsg(`インポート失敗: ${res.error}`);
+      setMsg(`Import failed: ${res.error}`);
     }
   };
 
   const onDelete = async (a: AddonPack) => {
-    if (!confirm(`「${a.name}」を削除しますか？`)) return;
+    if (!confirm(`Delete "${a.name}"?`)) return;
     const res = await api.deleteAddon(a.type, a.folder);
     if (res.ok) {
-      setMsg(`「${a.name}」を削除しました`);
+      setMsg(`Deleted "${a.name}".`);
       await reload();
     } else {
-      setMsg(`削除失敗: ${res.error}`);
+      setMsg(`Delete failed: ${res.error}`);
     }
   };
 
@@ -63,7 +63,7 @@ export default function Addon() {
 
   const toggleActive = async (a: AddonPack) => {
     if (!active) {
-      setMsg('アクティブワールドがありません。');
+      setMsg('There is no active world.');
       return;
     }
     const list = a.type === 'behavior' ? packs.behavior : packs.resource;
@@ -76,7 +76,7 @@ export default function Addon() {
     setPacks(next);
     const res = await api.setWorldPacks(active.name, next);
     if (!res.ok) {
-      setMsg(`保存失敗: ${res.error}`);
+      setMsg(`Save failed: ${res.error}`);
       await reload();
     }
   };
@@ -102,7 +102,7 @@ export default function Addon() {
         <div>
           <h2 className="text-2xl font-semibold">Addon</h2>
           <p className="text-neutral-400">
-            ビヘイビア/リソースパックを管理し、アクティブワールドで有効化します。
+            Manage behavior and resource packs, and enable them in the active world.
           </p>
         </div>
         <button
@@ -111,7 +111,7 @@ export default function Addon() {
           onClick={onImport}
           className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
         >
-          📥 .mcpack / .mcaddon をインポート
+          📥 Import .mcpack / .mcaddon
         </button>
       </div>
 
@@ -119,15 +119,15 @@ export default function Addon() {
 
       {active ? (
         <p className="text-xs text-neutral-400">
-          アクティブワールド: <span className="text-neutral-200">{active.displayName}</span>{' '}
+          Active World: <span className="text-neutral-200">{active.displayName}</span>{' '}
           <span className="text-neutral-600">（{active.name}）</span>
         </p>
       ) : (
-        <p className="text-xs text-yellow-400">アクティブワールドがありません。World 画面で選択してください。</p>
+        <p className="text-xs text-yellow-400">There is no active world. Select one on the World page.</p>
       )}
       {serverRunning && (
         <p className="text-xs text-yellow-400">
-          サーバー稼働中です。有効化の変更は次回起動時に反映されます。
+          The server is running. Changes to enabled packs will take effect the next time it starts.
         </p>
       )}
 
@@ -135,12 +135,12 @@ export default function Addon() {
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder={`パックを検索（${addons.length}個）`}
+        placeholder={`Search packs (${addons.length})`}
         className="w-full rounded bg-neutral-800 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-neutral-600"
       />
 
       <AddonGroup
-        title="ビヘイビアパック"
+        title="Behavior Packs"
         type="behavior"
         addons={grouped('behavior')}
         isActive={isActive}
@@ -149,7 +149,7 @@ export default function Addon() {
         activeWorldName={active?.name}
       />
       <AddonGroup
-        title="リソースパック"
+        title="Resource Packs"
         type="resource"
         addons={grouped('resource')}
         isActive={isActive}
@@ -181,7 +181,7 @@ function AddonGroup({
     <section className="rounded-lg border border-neutral-800 bg-neutral-900 p-5">
       <h3 className="text-sm font-semibold text-neutral-200">{title}</h3>
       {addons.length === 0 ? (
-        <p className="mt-3 text-sm text-neutral-500">パックがありません。</p>
+        <p className="mt-3 text-sm text-neutral-500">No packs found.</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {addons.map((a) => {
@@ -200,7 +200,7 @@ function AddonGroup({
                 <div className="ml-3 flex items-center gap-2">
                   <label
                     className="flex items-center gap-1 text-xs text-neutral-300"
-                    title={!activeWorldName ? 'アクティブワールドがありません' : ''}
+                    title={!activeWorldName ? 'There is no active world.' : ''}
                   >
                     <input
                       type="checkbox"
@@ -208,14 +208,14 @@ function AddonGroup({
                       disabled={!activeWorldName}
                       onChange={() => toggleActive(a)}
                     />
-                    有効
+                    Enabled
                   </label>
                   <button
                     type="button"
                     onClick={() => onDelete(a)}
                     className="rounded bg-red-700/80 px-2 py-1 text-xs text-white hover:bg-red-600"
                   >
-                    削除
+                    Delete
                   </button>
                 </div>
               </li>

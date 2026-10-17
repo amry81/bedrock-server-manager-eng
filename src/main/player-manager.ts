@@ -48,7 +48,7 @@ export function getAllowlist(): AllowlistEntry[] {
 
 export function setAllowlist(entries: AllowlistEntry[]): PlayerActionResult {
   if (!fs.existsSync(bedrockDir())) {
-    return { ok: false, error: 'サーバー本体が未インストールです。' };
+    return { ok: false, error: 'The server is not installed.' };
   }
   const clean = entries
     .filter((e) => e.name && e.name.trim())
@@ -70,7 +70,7 @@ export function getPermissions(): PermissionEntry[] {
 
 export function setPermissions(entries: PermissionEntry[]): PlayerActionResult {
   if (!fs.existsSync(bedrockDir())) {
-    return { ok: false, error: 'サーバー本体が未インストールです。' };
+    return { ok: false, error: 'The server is not installed.' };
   }
   const clean = entries
     .filter((e) => e.xuid && e.xuid.trim())

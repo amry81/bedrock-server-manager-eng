@@ -53,10 +53,10 @@ function OnlineTab() {
   const running = status === 'running';
 
   if (!running) {
-    return <p className="text-sm text-neutral-500">サーバー起動中のみオンラインプレイヤーを表示します。</p>;
+    return <p className="text-sm text-neutral-500">Online players are shown while the server is running.</p>;
   }
   if (online.length === 0) {
-    return <p className="text-sm text-neutral-500">接続中のプレイヤーはいません。</p>;
+    return <p className="text-sm text-neutral-500">No players are currently connected.</p>;
   }
   return (
     <ul className="space-y-2">
@@ -75,7 +75,7 @@ function OnlineTab() {
               onClick={() => api.sendCommand(`op "${p.name}"`)}
               className="rounded bg-neutral-700 px-2 py-1 text-xs text-neutral-100 hover:bg-neutral-600"
             >
-              op 付与
+              Grant OP
             </button>
             <button
               type="button"
@@ -104,14 +104,14 @@ function AllowlistTab() {
   const save = async (next: AllowlistEntry[]) => {
     setEntries(next);
     const res = await api.setAllowlist(next);
-    setMsg(res.ok ? '保存しました' : `保存失敗: ${res.error}`);
+    setMsg(res.ok ? 'Saved.' : `Save failed: ${res.error}`);
   };
 
   const add = async () => {
     const n = name.trim();
     if (!n) return;
     if (entries.some((e) => e.name.toLowerCase() === n.toLowerCase())) {
-      setMsg('既に追加されています');
+      setMsg('This player is already on the allowlist.');
       return;
     }
     setName('');
@@ -121,7 +121,7 @@ function AllowlistTab() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-neutral-400">
-        allowlist.json を編集します。ホワイトリストが有効な場合、ここに登録したプレイヤーのみ接続できます。
+        Edit allowlist.json. When the allowlist is enabled, only players listed here can join.
       </p>
       <div className="flex gap-2">
         <input
@@ -129,7 +129,7 @@ function AllowlistTab() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && add()}
-          placeholder="ゲーマータグ"
+          placeholder="Gamertag"
           className="flex-1 rounded bg-neutral-800 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-neutral-600"
         />
         <button
@@ -137,13 +137,13 @@ function AllowlistTab() {
           onClick={add}
           className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
         >
-          追加
+          Add
         </button>
       </div>
       {msg && <p className="text-xs text-emerald-400">{msg}</p>}
 
       {entries.length === 0 ? (
-        <p className="text-sm text-neutral-500">登録なし。</p>
+        <p className="text-sm text-neutral-500">No players added.</p>
       ) : (
         <ul className="space-y-2">
           {entries.map((e, i) => (
@@ -163,14 +163,14 @@ function AllowlistTab() {
                       save(next);
                     }}
                   />
-                  人数上限を無視
+                  Ignore player limit
                 </label>
                 <button
                   type="button"
                   onClick={() => save(entries.filter((_, j) => j !== i))}
                   className="rounded bg-red-700/80 px-2 py-1 text-xs text-white hover:bg-red-600"
                 >
-                  削除
+                  Remove
                 </button>
               </div>
             </li>
@@ -200,14 +200,14 @@ function OperatorsTab() {
   const save = async (next: PermissionEntry[]) => {
     setEntries(next);
     const res = await api.setPermissions(next);
-    setMsg(res.ok ? '保存しました' : `保存失敗: ${res.error}`);
+    setMsg(res.ok ? 'Saved.' : `Save failed: ${res.error}`);
   };
 
   const addByXuid = async (value: string, level: PermissionLevel = 'operator') => {
     const x = value.trim();
     if (!x) return;
     if (entries.some((e) => e.xuid === x)) {
-      setMsg('既に登録されています');
+      setMsg('This player is already registered.');
       return;
     }
     setXuid('');
@@ -220,14 +220,14 @@ function OperatorsTab() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-neutral-400">
-        permissions.json を編集します。BDS は XUID で権限を管理します（XUID
-        は一度接続したプレイヤーのログから取得されます）。
+        Edit permissions.json. BDS manages permissions using XUIDs (retrieved from the logs after
+        a player connects for the first time).
       </p>
 
       {/* Add from known players */}
       {unregisteredKnown.length > 0 && (
         <div className="rounded border border-neutral-800 bg-neutral-900 p-3">
-          <p className="mb-2 text-xs text-neutral-400">接続履歴から追加:</p>
+          <p className="mb-2 text-xs text-neutral-400">Add from recent players:</p>
           <div className="flex flex-wrap gap-2">
             {unregisteredKnown.map((k) => (
               <button
@@ -250,7 +250,7 @@ function OperatorsTab() {
           value={xuid}
           onChange={(e) => setXuid(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && addByXuid(xuid)}
-          placeholder="XUID を直接入力"
+          placeholder="Enter XUID manually"
           className="flex-1 rounded bg-neutral-800 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-neutral-600"
         />
         <button
@@ -258,13 +258,13 @@ function OperatorsTab() {
           onClick={() => addByXuid(xuid)}
           className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
         >
-          追加
+          Add
         </button>
       </div>
       {msg && <p className="text-xs text-emerald-400">{msg}</p>}
 
       {entries.length === 0 ? (
-        <p className="text-sm text-neutral-500">登録なし。</p>
+        <p className="text-sm text-neutral-500">No players registered.</p>
       ) : (
         <ul className="space-y-2">
           {entries.map((e, i) => (
@@ -274,7 +274,7 @@ function OperatorsTab() {
             >
               <div>
                 <span className="text-sm text-neutral-100">
-                  {nameForXuid(e.xuid) ?? '(不明)'}
+                  {nameForXuid(e.xuid) ?? '(Unknown)'}
                 </span>
                 <span className="ml-2 text-xs text-neutral-500">{e.xuid}</span>
               </div>
@@ -299,7 +299,7 @@ function OperatorsTab() {
                   onClick={() => save(entries.filter((_, j) => j !== i))}
                   className="rounded bg-red-700/80 px-2 py-1 text-xs text-white hover:bg-red-600"
                 >
-                  削除
+                  Remove
                 </button>
               </div>
             </li>

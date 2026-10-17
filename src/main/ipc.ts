@@ -1,4 +1,4 @@
-import { ipcMain, dialog, shell, BrowserWindow } from 'electron';
+import { ipcMain, dialog, shell, BrowserWindow, WebContentsView } from 'electron';
 import type {
   AddonActionResult,
   AddonImportResult,
@@ -8,6 +8,7 @@ import type {
   BackupInfo,
   BackupResult,
   BackupSettings,
+  BiomeFinderBounds,
   ConfigSetPayload,
   ConfigSetResult,
   CreateWorldInput,
@@ -63,6 +64,43 @@ import {
 import { getLanAddress, startMetricsSampler } from './metrics';
 import { playitManager } from './playit-manager';
 
+let biomeFinderView: WebContentsView | null = null;
+let biomeFinderWindow: BrowserWindow | null = null;
+
+function validBiomeFinderBounds(
+  bounds: BiomeFinderBounds,
+  win: BrowserWindow,
+): BiomeFinderBounds | null {
+  if (
+    !bounds ||
+    ![bounds.x, bounds.y, bounds.width, bounds.height].every(Number.isFinite) ||
+    bounds.width <= 0 ||
+    bounds.height <= 0
+  ) {
+    return null;
+  }
+
+  const [contentWidth, contentHeight] = win.getContentSize();
+  const x = Math.max(0, Math.round(bounds.x));
+  const y = Math.max(0, Math.round(bounds.y));
+  const width = Math.min(Math.round(bounds.width), contentWidth - x);
+  const height = Math.min(Math.round(bounds.height), contentHeight - y);
+  return width > 0 && height > 0 ? { x, y, width, height } : null;
+}
+
+function createBiomeFinderUrl(seed: string): string {
+  const url = new URL('https://www.chunkbase.com/apps/biome-finder');
+  url.hash = new URLSearchParams({
+    seed,
+    platform: 'bedrock_26_3',
+    dimension: 'overworld',
+    x: '0',
+    z: '0',
+    zoom: '0.5',
+  }).toString();
+  return url.toString();
+}
+
 /** Wire IPC handlers and forward server-manager events to the renderer. */
 export function registerIpc(getWindow: () => BrowserWindow | null): void {
   // Push server-manager events to the renderer.
@@ -85,8 +123,8 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
             level: res.ok ? 'INFO' : 'ERROR',
             source: 'system',
             text: res.ok
-              ? `自動バックアップを作成しました: ${res.id}`
-              : `自動バックアップ失敗: ${res.error}`,
+              ? `Automatic backup created: ${res.id}`
+              : `Automatic backup failed: ${res.error}`,
           } satisfies LogLine,
         );
       }
@@ -117,7 +155,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   ipcMain.handle('server:selectExe', async (): Promise<string | null> => {
     const win = getWindow();
     const result = await dialog.showOpenDialog(win!, {
-      title: 'bedrock_server.exe を選択',
+      title: 'Select bedrock_server.exe',
       properties: ['openFile'],
       filters: [{ name: 'Bedrock Server', extensions: ['exe'] }],
     });
@@ -160,7 +198,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   ipcMain.handle('world:import', async (): Promise<WorldImportResult> => {
     const win = getWindow();
     const result = await dialog.showOpenDialog(win!, {
-      title: '.mcworld をインポート',
+      title: 'Import .mcworld',
       properties: ['openFile'],
       filters: [
         { name: 'Bedrock World Export', extensions: ['mcworld', 'mctemplate', 'zip'] },
@@ -177,7 +215,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   ipcMain.handle('backup:create', (_e, world: string): BackupResult => createBackup(world));
   ipcMain.handle('backup:restore', (_e, id: string): BackupResult => {
     if (serverManager.getStatus() !== 'stopped' && serverManager.getStatus() !== 'error') {
-      return { ok: false, error: 'サーバーを停止してから復元してください。' };
+      return { ok: false, error: 'Stop the server before restoring a backup.' };
     }
     return restoreBackup(id);
   });
@@ -206,7 +244,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   ipcMain.handle('addon:import', async (): Promise<AddonImportResult> => {
     const win = getWindow();
     const result = await dialog.showOpenDialog(win!, {
-      title: 'アドオンをインポート',
+      title: 'Import Add-ons',
       properties: ['openFile', 'multiSelections'],
       filters: [{ name: 'Minecraft Addon', extensions: ['mcpack', 'mcaddon', 'zip'] }],
     });
@@ -267,6 +305,72 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   // misc
   ipcMain.handle('app:openExternal', async (_e, url: string): Promise<void> => {
     if (/^https?:\/\//i.test(url)) await shell.openExternal(url);
+  });
+
+  ipcMain.handle(
+    'biome-finder:show',
+    async (_e, seed: string, bounds: BiomeFinderBounds): Promise<void> => {
+      const win = getWindow();
+      if (!win) throw new Error('The application window is not available.');
+      if (typeof seed !== 'string' || !seed.trim() || seed.length > 256) {
+        throw new Error('Enter a valid world seed before opening the biome map.');
+      }
+      const viewBounds = validBiomeFinderBounds(bounds, win);
+      if (!viewBounds) throw new Error('The biome map area has invalid dimensions.');
+
+      if (!biomeFinderView) {
+        biomeFinderView = new WebContentsView({
+          webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            sandbox: true,
+          },
+        });
+        biomeFinderView.webContents.setWindowOpenHandler(({ url }) => {
+          if (/^https?:\/\//i.test(url)) {
+            void shell.openExternal(url).catch((err: unknown) => console.error(err));
+          }
+          return { action: 'deny' };
+        });
+        biomeFinderView.webContents.on('will-navigate', (event, target) => {
+          const targetUrl = new URL(target);
+          if (
+            targetUrl.protocol === 'https:' &&
+            ['chunkbase.com', 'www.chunkbase.com'].includes(targetUrl.hostname)
+          ) {
+            return;
+          }
+          event.preventDefault();
+          if (/^https?:\/\//i.test(target)) {
+            void shell.openExternal(target).catch((err: unknown) => console.error(err));
+          }
+        });
+      }
+      if (biomeFinderWindow !== win) {
+        win.contentView.addChildView(biomeFinderView);
+        biomeFinderWindow = win;
+        win.once('closed', () => {
+          biomeFinderView = null;
+          biomeFinderWindow = null;
+        });
+      }
+
+      biomeFinderView.setVisible(true);
+      biomeFinderView.setBounds(viewBounds);
+      const url = createBiomeFinderUrl(seed.trim());
+      if (biomeFinderView.webContents.getURL() !== url) {
+        await biomeFinderView.webContents.loadURL(url);
+      }
+    },
+  );
+  ipcMain.handle('biome-finder:setBounds', (_e, bounds: BiomeFinderBounds): void => {
+    const win = getWindow();
+    if (!win || !biomeFinderView) return;
+    const viewBounds = validBiomeFinderBounds(bounds, win);
+    if (viewBounds) biomeFinderView.setBounds(viewBounds);
+  });
+  ipcMain.handle('biome-finder:hide', (): void => {
+    biomeFinderView?.setVisible(false);
   });
 
   // Touch settings so the file exists from first launch.

@@ -14,7 +14,7 @@ const LEVEL_FILTERS: (LogLevel | 'ALL')[] = ['ALL', 'INFO', 'WARN', 'ERROR'];
 
 function fmtTime(ts: number): string {
   const d = new Date(ts);
-  return d.toLocaleTimeString('ja-JP', { hour12: false });
+  return d.toLocaleTimeString('en-US', { hour12: false });
 }
 
 export default function Console() {
@@ -63,7 +63,7 @@ export default function Console() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="ログを検索..."
+          placeholder="Search logs..."
           className="w-48 rounded bg-neutral-800 px-2 py-1 text-sm text-neutral-100 outline-none focus:ring-1 focus:ring-neutral-600"
         />
         <div className="flex gap-1">
@@ -89,25 +89,25 @@ export default function Console() {
             checked={autoScroll}
             onChange={(e) => setAutoScroll(e.target.checked)}
           />
-          自動スクロール
+          Auto-scroll
         </label>
         <button
           type="button"
           onClick={clearLogs}
           className="rounded bg-neutral-800 px-2 py-1 text-xs text-neutral-400 hover:text-neutral-200"
         >
-          クリア
+          Clear
         </button>
         <div className="ml-auto flex items-center gap-2">
           <span className="max-w-[22rem] truncate text-xs text-neutral-500" title={exePath ?? ''}>
-            {exePath ?? 'exe 未選択'}
+            {exePath ?? 'No executable selected'}
           </span>
           <button
             type="button"
             onClick={selectExe}
             className="rounded bg-neutral-700 px-2 py-1 text-xs text-neutral-200 hover:bg-neutral-600"
           >
-            exe を選択
+            Select Executable
           </button>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function Console() {
         className="flex-1 overflow-auto bg-neutral-950 px-4 py-2 font-mono text-xs leading-relaxed"
       >
         {filtered.length === 0 ? (
-          <p className="text-neutral-600">ログはまだありません。</p>
+          <p className="text-neutral-600">No logs yet.</p>
         ) : (
           filtered.map((l) => (
             <div key={l.id} className="whitespace-pre-wrap break-all">
@@ -139,7 +139,7 @@ export default function Console() {
             if (e.key === 'Enter') sendCommand();
           }}
           disabled={!canSend}
-          placeholder={canSend ? 'コマンドを入力 (例: list)' : 'サーバー起動後にコマンド送信できます'}
+          placeholder={canSend ? 'Enter a command (e.g. list)' : 'Start the server to send commands'}
           className="flex-1 rounded bg-neutral-800 px-3 py-2 text-sm text-neutral-100 outline-none focus:ring-1 focus:ring-neutral-600 disabled:opacity-50"
         />
         <button
@@ -148,7 +148,7 @@ export default function Console() {
           disabled={!canSend}
           className="rounded bg-neutral-700 px-4 py-2 text-sm text-neutral-100 hover:bg-neutral-600 disabled:opacity-50"
         >
-          送信
+          Send
         </button>
       </div>
     </div>

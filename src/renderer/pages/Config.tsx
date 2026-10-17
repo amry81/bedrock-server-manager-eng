@@ -17,39 +17,39 @@ interface FieldDef {
 
 // Spec 3.5 main fields. Note: BDS 1.26 uses `allow-list` (formerly white-list).
 const FIELDS: FieldDef[] = [
-  { key: 'server-name', label: 'サーバー名', type: 'text', placeholder: 'Dedicated Server' },
+  { key: 'server-name', label: 'Server Name', type: 'text', placeholder: 'Dedicated Server' },
   {
     key: 'gamemode',
-    label: 'ゲームモード',
+    label: 'Game Mode',
     type: 'select',
     options: [
-      { value: 'survival', label: 'サバイバル' },
-      { value: 'creative', label: 'クリエイティブ' },
-      { value: 'adventure', label: 'アドベンチャー' },
+      { value: 'survival', label: 'Survival' },
+      { value: 'creative', label: 'Creative' },
+      { value: 'adventure', label: 'Adventure' },
     ],
   },
   {
     key: 'difficulty',
-    label: '難易度',
+    label: 'Difficulty',
     type: 'select',
     options: [
-      { value: 'peaceful', label: 'ピースフル' },
-      { value: 'easy', label: 'イージー' },
-      { value: 'normal', label: 'ノーマル' },
-      { value: 'hard', label: 'ハード' },
+      { value: 'peaceful', label: 'Peaceful' },
+      { value: 'easy', label: 'Easy' },
+      { value: 'normal', label: 'Normal' },
+      { value: 'hard', label: 'Hard' },
     ],
   },
-  { key: 'max-players', label: '最大プレイヤー数', type: 'number', min: 1, max: 30 },
-  { key: 'server-port', label: 'ポート (IPv4)', type: 'number', min: 1, max: 65535 },
-  { key: 'server-portv6', label: 'ポート (IPv6)', type: 'number', min: 1, max: 65535 },
-  { key: 'view-distance', label: '描画距離 (チャンク)', type: 'number', min: 3, max: 64 },
-  { key: 'tick-distance', label: 'tick 距離', type: 'number', min: 4, max: 12 },
-  { key: 'allow-cheats', label: 'チート許可', type: 'toggle' },
-  { key: 'online-mode', label: 'オンライン認証', type: 'toggle' },
-  { key: 'allow-list', label: 'ホワイトリスト (allow-list)', type: 'toggle' },
+  { key: 'max-players', label: 'Maximum Players', type: 'number', min: 1, max: 30 },
+  { key: 'server-port', label: 'Port (IPv4)', type: 'number', min: 1, max: 65535 },
+  { key: 'server-portv6', label: 'Port (IPv6)', type: 'number', min: 1, max: 65535 },
+  { key: 'view-distance', label: 'View Distance (Chunks)', type: 'number', min: 3, max: 64 },
+  { key: 'tick-distance', label: 'Tick Distance', type: 'number', min: 4, max: 12 },
+  { key: 'allow-cheats', label: 'Allow Cheats', type: 'toggle' },
+  { key: 'online-mode', label: 'Online Authentication', type: 'toggle' },
+  { key: 'allow-list', label: 'Allowlist', type: 'toggle' },
   {
     key: 'default-player-permission-level',
-    label: 'デフォルト権限',
+    label: 'Default Player Permission',
     type: 'select',
     options: [
       { value: 'visitor', label: 'visitor' },
@@ -98,10 +98,10 @@ export default function Config() {
     }
     const res = await api.setConfig({ values: subset });
     if (res.ok) {
-      setSaveMsg('保存しました');
+      setSaveMsg('Saved.');
       await load();
     } else {
-      setSaveMsg(`保存失敗: ${res.error}`);
+      setSaveMsg(`Save failed: ${res.error}`);
     }
   };
 
@@ -109,10 +109,10 @@ export default function Config() {
     setSaveMsg(null);
     const res = await api.setConfig({ raw });
     if (res.ok) {
-      setSaveMsg('raw を保存しました');
+      setSaveMsg('Raw configuration saved.');
       await load();
     } else {
-      setSaveMsg(`保存失敗: ${res.error}`);
+      setSaveMsg(`Save failed: ${res.error}`);
     }
   };
 
@@ -120,7 +120,7 @@ export default function Config() {
     <div className="p-8 space-y-8 max-w-3xl">
       <div>
         <h2 className="text-2xl font-semibold mb-2">Config</h2>
-        <p className="text-neutral-400">server.properties の編集とサーバー本体の管理。</p>
+        <p className="text-neutral-400">Edit server.properties and manage the server installation.</p>
       </div>
 
       {/* server.properties form (P3) */}
@@ -132,16 +132,16 @@ export default function Config() {
 
         {serverRunning && (
           <p className="mt-2 text-xs text-yellow-400">
-            サーバー稼働中です。変更は次回起動時に反映されます。
+            The server is running. Changes will take effect the next time it starts.
           </p>
         )}
 
         {!installState?.installed ? (
           <p className="mt-3 text-sm text-neutral-500">
-            サーバー本体が未インストールです。先にダウンロードしてください。
+            The server is not installed. Download it first.
           </p>
         ) : !loaded ? (
-          <p className="mt-3 text-sm text-neutral-500">読み込み中...</p>
+          <p className="mt-3 text-sm text-neutral-500">Loading...</p>
         ) : (
           <>
             <div className="mt-4 grid grid-cols-2 gap-4">
@@ -187,7 +187,7 @@ export default function Config() {
                         checked={values[f.key] === 'true'}
                         onChange={(e) => setField(f.key, e.target.checked ? 'true' : 'false')}
                       />
-                      {values[f.key] === 'true' ? '有効' : '無効'}
+                      {values[f.key] === 'true' ? 'Enabled' : 'Disabled'}
                     </label>
                   )}
                 </div>
@@ -199,7 +199,7 @@ export default function Config() {
               onClick={saveForm}
               className="mt-5 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
             >
-              保存
+              Save
             </button>
 
             {/* Advanced raw editor */}
@@ -209,7 +209,7 @@ export default function Config() {
                 onClick={() => setShowAdvanced((s) => !s)}
                 className="text-sm text-neutral-300 hover:text-white"
               >
-                {showAdvanced ? '▼' : '▶'} 詳細設定（raw テキスト編集）
+                {showAdvanced ? '▼' : '▶'} Advanced Settings (Edit Raw Text)
               </button>
               {showAdvanced && (
                 <div className="mt-3 space-y-3">
@@ -225,10 +225,10 @@ export default function Config() {
                       onClick={saveRaw}
                       className="rounded-md bg-neutral-700 px-4 py-2 text-sm text-neutral-100 hover:bg-neutral-600"
                     >
-                      raw を保存
+                      Save Raw Configuration
                     </button>
                     <span className="text-xs text-neutral-500">
-                      ※ raw 保存はファイル全体を上書きします。フォームの値より優先されます。
+                      Saving raw configuration overwrites the entire file and takes precedence over the form values.
                     </span>
                   </div>
                 </div>
@@ -246,27 +246,27 @@ export default function Config() {
 
       {/* Server binary version / update (P2) */}
       <section className="rounded-lg border border-neutral-800 bg-neutral-900 p-5">
-        <h3 className="text-sm font-semibold text-neutral-200">サーバー本体</h3>
+        <h3 className="text-sm font-semibold text-neutral-200">Server Installation</h3>
         <div className="mt-3 space-y-1 text-sm text-neutral-400">
           <p>
-            インストール済み:{' '}
+            Installed:{' '}
             <span className="text-neutral-200">
-              {installState?.installed ? (installState.currentVersion ?? '不明') : '未インストール'}
+              {installState?.installed ? (installState.currentVersion ?? 'Unknown') : 'Not installed'}
             </span>
           </p>
           <p>
-            最新安定版:{' '}
-            <span className="text-neutral-200">{installState?.latestVersion ?? '取得不可'}</span>
+            Latest Stable:{' '}
+            <span className="text-neutral-200">{installState?.latestVersion ?? 'Unavailable'}</span>
           </p>
           {installState?.updateAvailable && (
-            <p className="text-yellow-400">アップデートが利用可能です。</p>
+            <p className="text-yellow-400">An update is available.</p>
           )}
         </div>
 
         {progress && downloading && (
           <p className="mt-3 text-xs text-neutral-500">
             {progress.phase === 'downloading'
-              ? `ダウンロード中 ${progress.percent ?? 0}%`
+              ? `Downloading ${progress.percent ?? 0}%`
               : progress.phase}
           </p>
         )}
@@ -275,17 +275,17 @@ export default function Config() {
           type="button"
           disabled={downloading || !canUpdate}
           onClick={startDownload}
-          title={!canUpdate ? 'サーバー停止中のみ実行できます' : undefined}
+          title={!canUpdate ? 'The server must be stopped to do this.' : undefined}
           className="mt-4 rounded-md bg-neutral-700 px-4 py-2 text-sm text-neutral-100 hover:bg-neutral-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {downloading
-            ? '処理中...'
+            ? 'Working...'
             : installState?.installed
-              ? 'アップデート / 再ダウンロード'
-              : 'ダウンロード'}
+              ? 'Update / Reinstall'
+              : 'Download'}
         </button>
         <p className="mt-2 text-xs text-neutral-500">
-          アップデート時もワールドデータ・設定ファイルは保持されます。
+          World data and configuration files are preserved when updating.
         </p>
       </section>
     </div>
@@ -293,12 +293,12 @@ export default function Config() {
 }
 
 const PLAYIT_LABEL: Record<PlayitState, string> = {
-  disabled: '無効',
-  installing: 'playit.exe をDL中...',
-  'needs-secret': 'シークレット未設定',
-  starting: '起動中...',
-  connected: '接続済み',
-  error: 'エラー',
+  disabled: 'Disabled',
+  installing: 'Downloading playit.exe...',
+  'needs-secret': 'Secret not configured',
+  starting: 'Starting...',
+  connected: 'Connected',
+  error: 'Error',
 };
 
 const PLAYIT_DOT: Record<PlayitState, string> = {
@@ -334,7 +334,7 @@ function TunnelingSection() {
   return (
     <section className="rounded-lg border border-neutral-800 bg-neutral-900 p-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-neutral-200">外部接続（playit.gg）</h3>
+        <h3 className="text-sm font-semibold text-neutral-200">External Access (playit.gg)</h3>
         <button
           type="button"
           onClick={toggle}
@@ -344,7 +344,7 @@ function TunnelingSection() {
             (running ? 'bg-red-600/80 hover:bg-red-600' : 'bg-emerald-600 hover:bg-emerald-500')
           }
         >
-          {running ? '無効にする' : '外部接続を有効にする'}
+          {running ? 'Disable' : 'Enable External Access'}
         </button>
       </div>
 
@@ -365,10 +365,10 @@ function TunnelingSection() {
           >
             playit.gg
           </button>{' '}
-          でアカウント作成 → Agent を追加し、シークレットキーを取得
+          Create an account, add an agent, and get your secret key.
         </p>
-        <p>2. Bedrock（UDP）トンネルを作成し、ローカル <code>127.0.0.1:19132</code> に向ける</p>
-        <p>3. 下にシークレットキーと割り当てられた外部アドレスを設定</p>
+        <p>2. Create a Bedrock (UDP) tunnel and point it to <code>127.0.0.1:19132</code>.</p>
+        <p>3. Enter your secret key and assigned external address below.</p>
       </div>
 
       {/* Secret config */}
@@ -378,8 +378,8 @@ function TunnelingSection() {
           onClick={() => setShowSecretForm((v) => !v)}
           className="text-sm text-neutral-300 hover:text-white"
         >
-          {showSecretForm ? '▼' : '▶'} シークレットキー設定{' '}
-          {playit?.hasSecret && <span className="text-xs text-emerald-400">（設定済み）</span>}
+          {showSecretForm ? '▼' : '▶'} Secret Key Settings{' '}
+          {playit?.hasSecret && <span className="text-xs text-emerald-400">(Configured)</span>}
         </button>
         {showSecretForm && (
           <div className="mt-2 space-y-3">
@@ -388,7 +388,7 @@ function TunnelingSection() {
                 type="password"
                 value={secret}
                 onChange={(e) => setSecret(e.target.value)}
-                placeholder="playit シークレットキー"
+                placeholder="playit secret key"
                 className="flex-1 rounded bg-neutral-800 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-neutral-600"
               />
               <button
@@ -401,7 +401,7 @@ function TunnelingSection() {
                 }}
                 className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-500"
               >
-                保存
+                Save
               </button>
             </div>
             <div className="flex gap-2">
@@ -409,7 +409,7 @@ function TunnelingSection() {
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="外部アドレス (例: purple-foo.gl.at.ply.gg:23456)"
+                placeholder="External address (e.g. purple-foo.gl.at.ply.gg:23456)"
                 className="flex-1 rounded bg-neutral-800 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-neutral-600"
               />
               <button
@@ -422,7 +422,7 @@ function TunnelingSection() {
                 }}
                 className="rounded-md bg-neutral-700 px-4 py-2 text-sm text-neutral-100 hover:bg-neutral-600"
               >
-                保存
+                Save
               </button>
             </div>
           </div>
@@ -435,22 +435,22 @@ function TunnelingSection() {
       {/* LAN address when off */}
       {!running && (
         <p className="mt-4 text-xs text-neutral-500">
-          外部接続が無効の間は、同一LAN内から{' '}
+          While external access is disabled, you can connect from the same LAN using{' '}
           <code className="rounded bg-neutral-800 px-1.5 py-0.5 text-emerald-300">
-            {lanAddress ? `${lanAddress}:19132` : 'LAN アドレス取得不可'}
+            {lanAddress ? `${lanAddress}:19132` : 'LAN address unavailable'}
           </code>{' '}
-          で接続できます。
+          .
         </p>
       )}
     </section>
   );
 }
 
-const DAY_LABELS = ['日', '月', '火', '水', '木', '金', '土'];
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const ACTION_LABEL: Record<ScheduleAction, string> = {
-  start: '起動',
-  stop: '停止',
-  restart: '再起動',
+  start: 'Start',
+  stop: 'Stop',
+  restart: 'Restart',
 };
 
 function newScheduleId(): string {
@@ -505,21 +505,21 @@ function ScheduleSection() {
   return (
     <section className="rounded-lg border border-neutral-800 bg-neutral-900 p-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-neutral-200">スケジュール起動/停止</h3>
+        <h3 className="text-sm font-semibold text-neutral-200">Scheduled Start / Stop</h3>
         <button
           type="button"
           onClick={add}
           className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
         >
-          ＋ 追加
+          + Add
         </button>
       </div>
       <p className="mt-2 text-xs text-neutral-500">
-        指定した曜日・時刻にサーバーを自動で起動/停止します（PC が起動中・本アプリが立ち上がっている間に限ります）。
+        Automatically start, stop, or restart the server on selected days and times. Your PC and this app must be running.
       </p>
 
       {loaded && entries.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-500">スケジュールはありません。「＋追加」から作成してください。</p>
+        <p className="mt-4 text-sm text-neutral-500">No schedules yet. Select "+ Add" to create one.</p>
       ) : (
         <ul className="mt-4 space-y-3">
           {entries.map((e) => (
@@ -534,7 +534,7 @@ function ScheduleSection() {
                     checked={e.enabled}
                     onChange={(ev) => update(e.id, { enabled: ev.target.checked })}
                   />
-                  有効
+                  Enabled
                 </label>
                 <select
                   value={e.action}
@@ -558,7 +558,7 @@ function ScheduleSection() {
                   onClick={() => remove(e.id)}
                   className="ml-auto rounded bg-red-700/80 px-2 py-1 text-xs text-white hover:bg-red-600"
                 >
-                  削除
+                  Delete
                 </button>
               </div>
               <div className="mt-3 flex flex-wrap gap-1">
@@ -600,10 +600,10 @@ function TunnelAddressShare({ address }: { address: string }) {
   const [copied, setCopied] = useState<'addr' | 'msg' | null>(null);
 
   const shareMessage =
-    `Minecraft 統合版サーバーに招待！\n` +
-    `サーバーアドレス: ${host}\n` +
-    `ポート: ${port}\n` +
-    `※「サーバーを追加」で一度登録すれば、次回からはタップするだけで入れます。`;
+    `You're invited to my Minecraft Bedrock server!\n` +
+    `Server address: ${host}\n` +
+    `Port: ${port}\n` +
+    `Add the server once in Minecraft, and you can join with a tap next time.`;
 
   const copy = (text: string, which: 'addr' | 'msg') => {
     navigator.clipboard.writeText(text);
@@ -614,15 +614,15 @@ function TunnelAddressShare({ address }: { address: string }) {
   return (
     <div className="mt-4 space-y-3">
       <div>
-        <p className="text-xs text-neutral-400">外部接続アドレス</p>
+        <p className="text-xs text-neutral-400">External Connection Address</p>
         <div className="mt-1 grid grid-cols-[1fr_auto] gap-2">
           <div className="flex flex-col gap-1 rounded bg-neutral-800 px-3 py-2 text-sm">
             <span>
-              <span className="text-neutral-500">アドレス: </span>
+              <span className="text-neutral-500">Address: </span>
               <span className="text-emerald-300">{host}</span>
             </span>
             <span>
-              <span className="text-neutral-500">ポート: </span>
+              <span className="text-neutral-500">Port: </span>
               <span className="text-emerald-300">{port}</span>
             </span>
           </div>
@@ -631,7 +631,7 @@ function TunnelAddressShare({ address }: { address: string }) {
             onClick={() => copy(address, 'addr')}
             className="self-start rounded bg-neutral-700 px-2 py-1 text-xs text-neutral-200 hover:bg-neutral-600"
           >
-            {copied === 'addr' ? 'コピー済' : 'アドレスをコピー'}
+            {copied === 'addr' ? 'Copied' : 'Copy Address'}
           </button>
         </div>
       </div>
@@ -641,10 +641,10 @@ function TunnelAddressShare({ address }: { address: string }) {
         onClick={() => copy(shareMessage, 'msg')}
         className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
       >
-        {copied === 'msg' ? 'コピーしました！' : '友達への案内文をコピー'}
+        {copied === 'msg' ? 'Copied!' : 'Copy Invite Message'}
       </button>
       <p className="text-xs text-neutral-500">
-        案内文には接続手順も含まれます。LINE などに貼って友達に送ってください。
+        The invite includes connection instructions. Paste it into a message to share with your friends.
       </p>
     </div>
   );

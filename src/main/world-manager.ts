@@ -61,13 +61,13 @@ export function listWorlds(): WorldInfo[] {
  */
 export function createWorld(input: CreateWorldInput): WorldActionResult {
   const folder = sanitizeFolderName(input.name);
-  if (!folder) return { ok: false, error: 'ワールド名が不正です。' };
+  if (!folder) return { ok: false, error: 'Invalid world name.' };
 
   const dir = worldsDir();
   fs.mkdirSync(dir, { recursive: true });
   const target = path.join(dir, folder);
   if (fs.existsSync(target)) {
-    return { ok: false, error: '同名のワールドが既に存在します。' };
+    return { ok: false, error: 'A world with that name already exists.' };
   }
 
   try {
@@ -92,7 +92,7 @@ export function createWorld(input: CreateWorldInput): WorldActionResult {
 export function switchWorld(name: string): WorldActionResult {
   const target = path.join(worldsDir(), name);
   if (!fs.existsSync(target)) {
-    return { ok: false, error: 'ワールドが見つかりません。' };
+    return { ok: false, error: 'World not found.' };
   }
   return writeConfig({ values: { 'level-name': name } });
 }
@@ -118,13 +118,13 @@ function uniqueWorldFolder(base: string): string {
  */
 export function importWorld(srcPath: string): WorldImportResult {
   if (!fs.existsSync(srcPath)) {
-    return { ok: false, error: 'ファイルが見つかりません。' };
+    return { ok: false, error: 'File not found.' };
   }
   try {
     const zip = new AdmZip(srcPath);
     const entries = zip.getEntries();
     if (entries.length === 0) {
-      return { ok: false, error: '空のファイルです。' };
+      return { ok: false, error: 'The file is empty.' };
     }
 
     // If everything is nested under a single top-level folder, strip it.
@@ -174,7 +174,7 @@ export function importWorld(srcPath: string): WorldImportResult {
 
     if (extracted === 0) {
       fs.rmSync(target, { recursive: true, force: true });
-      return { ok: false, error: 'ワールドデータを取り出せませんでした。' };
+      return { ok: false, error: 'Could not extract the world data.' };
     }
 
     // Make sure levelname.txt exists so the world list shows a name.

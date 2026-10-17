@@ -14,10 +14,10 @@ interface StepItem {
 }
 
 const SETUP_STEPS: StepItem[] = [
-  { key: 'folders', label: 'データフォルダ作成' },
-  { key: 'download', label: 'サーバー本体ダウンロード' },
-  { key: 'extract', label: '展開・配置' },
-  { key: 'world', label: 'デフォルトワールド準備' },
+  { key: 'folders', label: 'Create data folders' },
+  { key: 'download', label: 'Download server files' },
+  { key: 'extract', label: 'Extract and install' },
+  { key: 'world', label: 'Prepare default world' },
 ];
 
 const PHASE_RANK: Record<string, number> = {
@@ -104,15 +104,15 @@ export default function Setup() {
       <div className="w-full max-w-lg rounded-xl border border-neutral-800 bg-neutral-900 p-8 shadow-2xl">
         {step === 'welcome' && (
           <>
-            <h2 className="text-xl font-semibold">ようこそ</h2>
+            <h2 className="text-xl font-semibold">Welcome</h2>
             <p className="mt-2 text-sm text-neutral-400">
-              Bedrock Server Manager は、Minecraft 統合版サーバーを簡単に立てて友達と遊ぶための
-              無料アプリです。続行する前に以下に同意してください。
+              Bedrock Server Manager is a free app that makes it easy to set up a Minecraft Bedrock
+              server and play with friends. Please agree to the following before continuing.
             </p>
             <p className="mt-3 text-sm text-neutral-400">
-              最新安定版:{' '}
+              Latest Stable Version:{' '}
               <span className="text-neutral-200">
-                {installState.latestVersion ?? '取得できませんでした'}
+                {installState.latestVersion ?? 'Unable to fetch'}
               </span>
             </p>
 
@@ -124,7 +124,7 @@ export default function Setup() {
                 className="mt-0.5"
               />
               <span>
-                本アプリの利用規約、および Microsoft の{' '}
+                I agree to this app's terms of use and Microsoft's{' '}
                 <a
                   href="https://www.minecraft.net/eula"
                   target="_blank"
@@ -140,9 +140,9 @@ export default function Setup() {
                   rel="noreferrer"
                   className="text-emerald-400 underline"
                 >
-                  サービス規約
+                  Services Agreement
                 </a>{' '}
-                に同意します。
+                .
               </span>
             </label>
 
@@ -155,16 +155,16 @@ export default function Setup() {
               }}
               className="mt-6 w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              同意してセットアップを開始
+              Agree and Start Setup
             </button>
           </>
         )}
 
         {step === 'progress' && (
           <>
-            <h2 className="text-xl font-semibold">セットアップ中...</h2>
+            <h2 className="text-xl font-semibold">Setting Up...</h2>
             <p className="mt-2 text-sm text-neutral-400">
-              サーバーに必要なファイルを準備しています。完了までお待ちください。
+              Preparing the files required by the server. Please wait for setup to finish.
             </p>
 
             <ul className="mt-6 space-y-3">
@@ -211,7 +211,7 @@ export default function Setup() {
             {phase === 'error' && (
               <div className="mt-4 space-y-3">
                 <p className="rounded bg-red-950/60 px-3 py-2 text-sm text-red-300">
-                  セットアップに失敗しました: {progress?.error}
+                  Setup failed: {progress?.error}
                 </p>
                 <button
                   type="button"
@@ -222,7 +222,7 @@ export default function Setup() {
                   }}
                   className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
                 >
-                  再試行
+                  Retry
                 </button>
               </div>
             )}
@@ -235,10 +235,10 @@ export default function Setup() {
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-2xl text-white">
                 ✓
               </div>
-              <h2 className="mt-4 text-xl font-semibold">セットアップ完了</h2>
+              <h2 className="mt-4 text-xl font-semibold">Setup Complete</h2>
               <p className="mt-2 text-sm text-neutral-400">
-                サーバーの準備ができました。Dashboard の「▶ サーバーを起動」で起動し、
-                表示される接続アドレスを友達に送ってください。
+                Your server is ready. Start it from the Dashboard by selecting “▶ Start Server”,
+                then share the connection address with your friends.
               </p>
             </div>
             <button
@@ -246,7 +246,7 @@ export default function Setup() {
               onClick={() => setDismissed(true)}
               className="mt-6 w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
             >
-              Dashboard を開く
+              Go to Dashboard
             </button>
           </>
         )}

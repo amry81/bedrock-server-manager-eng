@@ -7,6 +7,7 @@ import Addon from './pages/Addon';
 import Player from './pages/Player';
 import Config from './pages/Config';
 import Console from './pages/Console';
+import BiomeFinder from './pages/BiomeFinder';
 import { useServerStore } from './store/server-store';
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
       <main className="flex-1 overflow-auto">
         {activePage === 'dashboard' && <Dashboard />}
         {activePage === 'world' && <World />}
+        {activePage === 'biome-finder' && <BiomeFinder />}
         {activePage === 'addon' && <Addon />}
         {activePage === 'player' && <Player />}
         {activePage === 'config' && <Config />}

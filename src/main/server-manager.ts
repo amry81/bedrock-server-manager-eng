@@ -64,13 +64,13 @@ class ServerManager extends EventEmitter {
 
   start(): StartResult {
     if (this.child) {
-      return { ok: false, error: 'サーバーは既に起動しています。' };
+      return { ok: false, error: 'The server is already running.' };
     }
 
     const exePath = this.resolveExePath();
     if (!exePath) {
       const msg =
-        'bedrock_server.exe が見つかりません。Console 画面の「exe を選択」から手動DLした実行ファイルを指定してください。';
+        'bedrock_server.exe was not found. In the Console, select "Select Executable" and choose the server executable you downloaded manually.';
       this.system(msg);
       this.setStatus('error');
       return { ok: false, error: msg };
@@ -79,7 +79,7 @@ class ServerManager extends EventEmitter {
     const cwd = path.dirname(exePath);
     this.intentionalStop = false;
     this.setStatus('starting');
-    this.system(`サーバーを起動します: ${exePath}`);
+    this.system(`Starting server: ${exePath}`);
 
     try {
       this.child = spawn(exePath, [], {
@@ -87,7 +87,7 @@ class ServerManager extends EventEmitter {
         windowsHide: true,
       }) as ChildProcessWithoutNullStreams;
     } catch (err) {
-      const msg = `起動に失敗しました: ${(err as Error).message}`;
+      const msg = `Failed to start the server: ${(err as Error).message}`;
       this.system(msg);
       this.setStatus('error');
       this.child = null;
@@ -100,7 +100,7 @@ class ServerManager extends EventEmitter {
     this.child.stderr.on('data', (chunk: string) => this.onData(chunk, 'stderr'));
 
     this.child.on('error', (err) => {
-      this.system(`プロセスエラー: ${err.message}`);
+      this.system(`Process error: ${err.message}`);
       this.setStatus('error');
     });
 
@@ -111,11 +111,11 @@ class ServerManager extends EventEmitter {
 
   stop(): StartResult {
     if (!this.child) {
-      return { ok: false, error: 'サーバーは起動していません。' };
+      return { ok: false, error: 'The server is not running.' };
     }
     this.intentionalStop = true;
     this.setStatus('stopping');
-    this.system('停止コマンドを送信します...');
+    this.system('Sending stop command...');
     try {
       this.child.stdin.write('stop\n');
     } catch {
@@ -124,7 +124,7 @@ class ServerManager extends EventEmitter {
     // Force-kill if it does not exit within 10s.
     this.stopTimer = setTimeout(() => {
       if (this.child) {
-        this.system('時間内に停止しなかったため強制終了します。');
+        this.system('The server did not stop in time; forcing it to exit.');
         this.child.kill();
       }
     }, 10_000);
@@ -145,9 +145,9 @@ class ServerManager extends EventEmitter {
 
   sendCommand(command: string): StartResult {
     const cmd = command.trim();
-    if (!cmd) return { ok: false, error: '空のコマンドです。' };
+    if (!cmd) return { ok: false, error: 'Command cannot be empty.' };
     if (!this.child || this.status !== 'running') {
-      return { ok: false, error: 'サーバーが起動済み状態ではありません。' };
+      return { ok: false, error: 'The server is not running.' };
     }
     try {
       this.child.stdin.write(cmd + '\n');
@@ -203,13 +203,13 @@ class ServerManager extends EventEmitter {
     this.startedAt = null;
     this.stdoutBuf = '';
     this.stderrBuf = '';
-    this.system(`サーバープロセスが終了しました (code=${code ?? 'null'}, signal=${signal ?? 'null'})`);
+    this.system(`Server process exited (code=${code ?? 'null'}, signal=${signal ?? 'null'})`);
 
     const crashed = !this.intentionalStop && code !== 0;
     if (crashed) {
       this.setStatus('error');
       if (readSettings().autoRestart) {
-        this.system('自動再起動が有効です。再起動します...');
+        this.system('Automatic restart is enabled. Restarting...');
         setTimeout(() => this.start(), 1000);
       }
     } else {

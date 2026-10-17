@@ -121,6 +121,13 @@ export interface ServerPropertiesData {
   values: Record<string, string>;
 }
 
+export interface BiomeFinderBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface ConfigSetPayload {
   /** Merge these key/values into the file, preserving comments and order. */
   values?: Record<string, string>;
@@ -300,6 +307,9 @@ export interface AppApi {
 
   // misc
   openExternal: (url: string) => Promise<void>;
+  showBiomeFinder: (seed: string, bounds: BiomeFinderBounds) => Promise<void>;
+  setBiomeFinderBounds: (bounds: BiomeFinderBounds) => Promise<void>;
+  hideBiomeFinder: () => Promise<void>;
 
   // push subscriptions (return an unsubscribe fn)
   onLog: (cb: (line: LogLine) => void) => () => void;
